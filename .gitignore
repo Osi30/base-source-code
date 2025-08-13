@@ -60,6 +60,6 @@ out/
 .qodo/
 
 # Environment variables
-.env
-.env.*
+src/main/resources/.env
+.env.example
 !.env.example # Keep example files

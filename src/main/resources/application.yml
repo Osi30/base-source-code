@@ -3,9 +3,9 @@ spring:
     name: base.source.code
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    username: root
-    password: 12345
-    url: jdbc:mysql://localhost:3306/base?createDatabaseIfNotExist=true
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    url: jdbc:mysql://localhost:3306/${DB_NAME}?createDatabaseIfNotExist=true
   jpa:
     show-sql: true
     hibernate:

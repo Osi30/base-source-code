@@ -22,7 +22,7 @@ public class SecurityConfig {
                 .sessionManagement(m -> m.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize ->
                         authorize.requestMatchers("/api/**").authenticated())
-                .addFilterBefore()
+//                .addFilterBefore()
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
         ;
