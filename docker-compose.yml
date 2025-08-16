@@ -2,14 +2,40 @@
 version: '3.8'
 
 services:
-  app:
+  # MySQL Database Service
+  mysql-db:
+    image: mysql:8.0
+    container_name: bsc-db
+    environment:
+      MYSQL_ROOT_PASSWORD: 12345
+      MYSQL_DATABASE: bsc
+    ports:
+      - "13306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p12345" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Spring Boot Api Service
+  spring-boot-bsc-api:
     build:
       context: .
       dockerfile: Dockerfile
-    image: base-source-code
-    container_name: base-source-code
+    image: bsc-api
+    container_name: bsc-api
     ports:
       - "8080:8080"
     environment:
+      # This will retrieve to application-prod.yml (which override application.yml)
       - SPRING_PROFILES_ACTIVE=prod
+    depends_on:
+      mysql-db:
+        condition: service_healthy
     restart: unless-stopped
+
+volumes:
+  mysql_data:
