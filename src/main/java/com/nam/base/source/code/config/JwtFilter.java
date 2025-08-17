@@ -1,17 +1,61 @@
 package com.nam.base.source.code.config;
 
+import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import javax.crypto.SecretKey;
 import java.io.IOException;
+import java.util.List;
 
+@Component
 public class JwtFilter extends OncePerRequestFilter {
+    @Value("${JWT_HEADER}")
+    private String jwtHeader;
+
+    @Value("${JWT_KEY}")
+    private String jwtKey;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String jwt = request.getHeader("Authorization");
+        String jwt = request.getHeader(jwtHeader);
+        if (jwt != null) {
+            jwt = jwt.substring(7);
+
+            try {
+
+                SecretKey key = Keys.hmacShaKeyFor(jwtKey.getBytes());
+                Claims claims = Jwts.parser().verifyWith(key).build().parseSignedClaims(jwt).getPayload();
+                String username = claims.get("username", String.class);
+                String role = claims.get("authorities", String.class);
+                updateAuthentication(username, role);
+
+            } catch (ExpiredJwtException exception) {
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "The token is expired!");
+            } catch (MalformedJwtException e) {
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "The token is not valid!");
+            } catch (Exception e) {
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token validation failed");
+            }
+        }
+        filterChain.doFilter(request, response);
+    }
+
+    private void updateAuthentication(String username, String role) {
+        List<GrantedAuthority> authorities = AuthorityUtils.commaSeparatedStringToAuthorityList(role);
+        Authentication authentication = new UsernamePasswordAuthenticationToken(username, null, authorities);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 }

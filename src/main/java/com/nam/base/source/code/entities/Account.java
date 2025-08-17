@@ -25,11 +25,11 @@ public class Account {
     @Column(name = "account_id", length = 10)
     private String id;
 
-    @Column(name = "email")
+    @Column(name = "email", unique = true)
     @Email(message = "Invalid Email!")
     private String email;
 
-    @Column(name = "username")
+    @Column(name = "username", unique = true)
     private String username;
 
     @Column(name = "password")
@@ -38,7 +38,7 @@ public class Account {
     @Column(name = "full_name")
     private String fullName;
 
-    @Column(name = "phone_number", length = 10)
+    @Column(name = "phone_number", length = 10, unique = true)
     @Pattern(regexp = "(84|0[3|5|7|8|9])+(\\d{8})", message = "Invalid phone!")
     private String phoneNumber;
 

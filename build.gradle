@@ -22,6 +22,8 @@ ext {
     commonsTextVersion = '1.14.0'
     dotenvJavaVersion = '3.2.0'
     lombokVersion = '1.18.38'
+    modelMapperVersion = '3.1.1'
+    springDocVersion = '2.8.9'
 }
 
 dependencies {
@@ -35,13 +37,20 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation("io.github.cdimascio:dotenv-java:${dotenvJavaVersion}")
     implementation("org.projectlombok:lombok:${lombokVersion}")
+    implementation("org.modelmapper:modelmapper:${modelMapperVersion}")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:${springDocVersion}")
+
     runtimeOnly 'com.mysql:mysql-connector-j'
     runtimeOnly("io.jsonwebtoken:jjwt-impl:${jjwtVersion}")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:${jjwtVersion}")
+
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
+
     annotationProcessor("org.projectlombok:lombok:${lombokVersion}")
 }
 
