@@ -24,11 +24,8 @@ public class SecurityConfig {
     @Value("${JWT_HEADER}")
     private String jwtHeader;
 
-    @Value("${ALLOW_ORIGIN_DEV}")
-    private String originDev;
-
-    @Value("${ALLOW_ORIGIN}")
-    private String origin;
+    @Value("${FRONT_END_URL}")
+    private String frontEndUrl;
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -49,9 +46,7 @@ public class SecurityConfig {
         return request -> {
             CorsConfiguration config = new CorsConfiguration();
             config.setAllowCredentials(true);
-            config.setAllowedOrigins(Arrays.asList(
-                    origin, originDev
-            ));
+            config.setAllowedOrigins(Collections.singletonList(frontEndUrl));
             config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
             config.setAllowedHeaders(Collections.singletonList("*"));
             config.setExposedHeaders(Collections.singletonList(jwtHeader));

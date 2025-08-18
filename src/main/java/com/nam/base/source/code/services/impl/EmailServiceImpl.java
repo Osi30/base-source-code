@@ -1,0 +1,62 @@
+package com.nam.base.source.code.services.impl;
+
+import com.nam.base.source.code.dtos.request.EmailRequest;
+import com.nam.base.source.code.enums.EmailTemplate;
+import com.nam.base.source.code.exceptions.exceptions.EmailException;
+import com.nam.base.source.code.services.EmailService;
+import jakarta.mail.internet.MimeMessage;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.stereotype.Service;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
+
+@Service
+@RequiredArgsConstructor
+public class EmailServiceImpl implements EmailService {
+    @Value("${FRONT_END_URL}")
+    private String frontEndUrl;
+
+    @Value("${VERIFY_API}")
+    private String verifyTokenApi;
+
+    private final JavaMailSender mailSender;
+    private final SpringTemplateEngine templateEngine;
+
+    @Override
+    public void sendHtmlEmail(EmailRequest request) {
+        try {
+            // Support HTML content types
+            MimeMessage message = mailSender.createMimeMessage();
+
+            // Utility class to indicate email is a "multipart" message (contains both text and attachments)
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            // Url for button href variable
+            String verifyUrl = frontEndUrl + verifyTokenApi + request.getVerifyToken();
+
+            // Act as a Map for put data to html file
+            Context context = new Context();
+            context.setVariable("fullName", request.getFullName());
+            if (request.getEmailTemplate().equals(EmailTemplate.RESET_PASSWORD)) {
+                context.setVariable("resetUrl", verifyUrl);
+            } else {
+                context.setVariable("verifyUrl", verifyUrl);
+            }
+
+            // Find & generate html file and set data from context
+            String htmlContent = templateEngine.process(request.getEmailTemplate().getCode(), context);
+
+            // Set receiver, subject and content body
+            helper.setTo(request.getTo());
+            helper.setSubject(request.getEmailTemplate().getSubject());
+            helper.setText(htmlContent, true);
+
+            mailSender.send(message);
+        } catch (Exception e) {
+            throw new EmailException(e.getMessage());
+        }
+    }
+}

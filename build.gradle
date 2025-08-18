@@ -24,12 +24,15 @@ ext {
     lombokVersion = '1.18.38'
     modelMapperVersion = '3.1.1'
     springDocVersion = '2.8.9'
+    jakartaMailVersion = '2.0.2'
 }
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
     implementation "io.jsonwebtoken:jjwt-api:${jjwtVersion}"
     implementation("org.apache.commons:commons-text:${commonsTextVersion}") {
         exclude group: 'org.apache.commons', module: 'commons-lang3'
@@ -39,6 +42,7 @@ dependencies {
     implementation("org.projectlombok:lombok:${lombokVersion}")
     implementation("org.modelmapper:modelmapper:${modelMapperVersion}")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:${springDocVersion}")
+    implementation("com.sun.mail:jakarta.mail:${jakartaMailVersion}")
 
     runtimeOnly 'com.mysql:mysql-connector-j'
     runtimeOnly("io.jsonwebtoken:jjwt-impl:${jjwtVersion}")

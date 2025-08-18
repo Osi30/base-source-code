@@ -56,6 +56,9 @@ public class Account {
     @Column(name = "status")
     private Boolean status;
 
+    @Column(name = "is_verified")
+    private Boolean isVerified;
+
     @PrePersist
     public void generateId() {
         this.id = GenerateUtil.generateRandomWords(10);

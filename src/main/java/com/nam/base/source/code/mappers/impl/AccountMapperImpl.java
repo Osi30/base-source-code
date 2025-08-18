@@ -2,7 +2,6 @@ package com.nam.base.source.code.mappers.impl;
 
 import com.nam.base.source.code.dtos.request.AuthRequest;
 import com.nam.base.source.code.entities.Account;
-import com.nam.base.source.code.enums.AccountRole;
 import com.nam.base.source.code.exceptions.exceptions.AuthException;
 import com.nam.base.source.code.mappers.AccountMapper;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +30,7 @@ public class AccountMapperImpl implements AccountMapper {
         }
         account.setPassword(passwordEncoder.encode(authRequest.getPassword()));
         account.setStatus(true);
+        account.setIsVerified(false);
 
 //        account.setAccountRole(authRequest.getAccountRoleId() == null
 //        ? AccountRole.CUSTOMER : authRequest.getAccountRoleId());

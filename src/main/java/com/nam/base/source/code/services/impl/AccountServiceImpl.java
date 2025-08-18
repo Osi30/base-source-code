@@ -19,7 +19,7 @@ public class AccountServiceImpl implements AccountService {
     private final AccountMapper accountMapper;
 
     @Override
-    public void register(AuthRequest authRequest) {
+    public Account register(AuthRequest authRequest) {
         AccountIdentity accountIdentity = getAccountByIdentity(authRequest);
 
         if (accountIdentity.getAccount() != null) {
@@ -27,7 +27,7 @@ public class AccountServiceImpl implements AccountService {
         }
 
         Account account = accountMapper.toAccount(authRequest);
-        accountRepo.save(account);
+        return accountRepo.save(account);
     }
 
     private AccountIdentity getAccountByIdentity(AuthRequest authRequest) {
