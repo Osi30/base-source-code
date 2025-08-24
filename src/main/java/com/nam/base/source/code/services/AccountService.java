@@ -5,4 +5,5 @@ import com.nam.base.source.code.entities.Account;
 
 public interface AccountService {
     Account register(AuthRequest authRequest);
+    Account getAccountById(String accountId);
 }

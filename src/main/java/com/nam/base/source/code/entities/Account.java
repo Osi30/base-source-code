@@ -1,6 +1,7 @@
 package com.nam.base.source.code.entities;
 
 import com.nam.base.source.code.enums.AccountRole;
+import com.nam.base.source.code.enums.AccountStatus;
 import com.nam.base.source.code.utils.GenerateUtil;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -54,10 +55,7 @@ public class Account {
     private AccountRole accountRole;
 
     @Column(name = "status")
-    private Boolean status;
-
-    @Column(name = "is_verified")
-    private Boolean isVerified;
+    private AccountStatus status;
 
     @PrePersist
     public void generateId() {

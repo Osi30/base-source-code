@@ -10,10 +10,7 @@ import com.nam.base.source.code.services.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
@@ -31,7 +28,7 @@ public class AuthController {
         Account account = accountService.register(authRequest);
 
         // Generate email token for verification
-        VerifyToken verifyToken = verifyTokenService.generateToken(account.getId());
+        VerifyToken verifyToken = verifyTokenService.generateToken(account);
 
         // Construct and send to account email
         emailService.sendHtmlEmail(EmailRequest.builder()
@@ -49,5 +46,15 @@ public class AuthController {
         return new ResponseEntity<>(baseResponse, HttpStatus.CREATED);
     }
 
+    @GetMapping("/verify")
+    public ResponseEntity<BaseResponse> verifyAccount(@RequestParam("token") String token) {
+        String message = verifyTokenService.verifyToken(token);
 
+        BaseResponse baseResponse = BaseResponse.builder()
+                .code(HttpStatus.OK.value())
+                .message(message)
+                .data(null)
+                .build();
+        return new ResponseEntity<>(baseResponse, HttpStatus.OK);
+    }
 }

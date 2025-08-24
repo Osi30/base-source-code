@@ -2,12 +2,15 @@ package com.nam.base.source.code.mappers.impl;
 
 import com.nam.base.source.code.dtos.request.AuthRequest;
 import com.nam.base.source.code.entities.Account;
+import com.nam.base.source.code.enums.AccountStatus;
 import com.nam.base.source.code.exceptions.exceptions.AuthException;
 import com.nam.base.source.code.mappers.AccountMapper;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -29,12 +32,20 @@ public class AccountMapperImpl implements AccountMapper {
             throw new AuthException("Password is required");
         }
         account.setPassword(passwordEncoder.encode(authRequest.getPassword()));
-        account.setStatus(true);
-        account.setIsVerified(false);
+        account.setStatus(AccountStatus.INACTIVE);
 
 //        account.setAccountRole(authRequest.getAccountRoleId() == null
 //        ? AccountRole.CUSTOMER : authRequest.getAccountRoleId());
 
         return account;
+    }
+
+    @Override
+    public Account updateAccount(AuthRequest request, Account existedAccount) {
+        Optional.ofNullable(request.getEmail()).ifPresent(existedAccount::setEmail);
+        Optional.ofNullable(request.getFullName()).ifPresent(existedAccount::setFullName);
+        Optional.ofNullable(request.getPhoneNumber()).ifPresent(existedAccount::setPhoneNumber);
+        Optional.ofNullable(request.getUsername()).ifPresent(existedAccount::setUsername);
+        return existedAccount;
     }
 }

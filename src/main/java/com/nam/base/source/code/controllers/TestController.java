@@ -15,7 +15,7 @@ public class TestController {
     private String value;
 
     @GetMapping
-    public ResponseEntity<String> test() {
+    public ResponseEntity<String> getVerifyToken() {
 
         return ResponseEntity.ok(value);
     }

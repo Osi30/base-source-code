@@ -13,5 +13,6 @@ import lombok.NoArgsConstructor;
 @Builder
 public class AccountIdentity {
     private Account account;
+    private Boolean isInactive;
     private AccountIdentifier identity;
 }

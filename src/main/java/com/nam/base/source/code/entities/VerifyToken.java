@@ -26,6 +26,10 @@ public class VerifyToken {
     @Column(name = "expiryDate", nullable = false)
     private LocalDateTime expiryDate;
 
-    @Column(name = "account_id", nullable = false)
-    private String accountId;
+    @Column(name = "is_verified")
+    private Boolean isVerified;
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "account_id", referencedColumnName = "account_id")
+    private Account account;
 }
