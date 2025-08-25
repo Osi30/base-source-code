@@ -58,17 +58,20 @@ public class AccountServiceImpl implements AccountService {
             accountIdentifier = AccountIdentifier.EMAIL;
         }
 
-        if (!ValidationUtils.isNullOrEmpty(authRequest.getUsername())) {
+        if (!ValidationUtils.isNullOrEmpty(authRequest.getUsername())
+                && account == null) {
             account = accountRepo.findByUsername(authRequest.getUsername());
             accountIdentifier = AccountIdentifier.USERNAME;
         }
 
-        if (!ValidationUtils.isNullOrEmpty(authRequest.getPhoneNumber())) {
+        if (!ValidationUtils.isNullOrEmpty(authRequest.getPhoneNumber())
+                && account == null) {
             account = accountRepo.findByPhoneNumber(authRequest.getPhoneNumber());
             accountIdentifier = AccountIdentifier.PHONE;
         }
 
-        if (!ValidationUtils.isNullOrEmpty(authRequest.getIdentifier())) {
+        if (!ValidationUtils.isNullOrEmpty(authRequest.getIdentifier())
+                && account == null) {
             account = accountRepo.findByIdentifier(authRequest.getIdentifier());
         }
 
