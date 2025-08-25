@@ -37,11 +37,12 @@ public class JwtFilter extends OncePerRequestFilter {
 
                 SecretKey key = Keys.hmacShaKeyFor(jwtKey.getBytes());
                 Claims claims = Jwts.parser().verifyWith(key).build().parseSignedClaims(jwt).getPayload();
-                String username = claims.get("username", String.class);
+                String identifier = claims.get("identifier", String.class);
                 String role = claims.get("authorities", String.class);
-                updateAuthentication(username, role);
+                updateAuthentication(identifier, role);
 
             } catch (ExpiredJwtException exception) {
+
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "The token is expired!");
             } catch (MalformedJwtException e) {
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "The token is not valid!");

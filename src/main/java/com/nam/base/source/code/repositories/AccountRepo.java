@@ -8,6 +8,7 @@ public interface AccountRepo extends JpaRepository<Account, String> {
     Account findByEmail(String email);
     Account findByUsername(String username);
     Account findByPhoneNumber(String phoneNumber);
+    Account findAccountById(String accountId);
 
     @Query("""
             SELECT a

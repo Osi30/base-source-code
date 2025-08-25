@@ -12,11 +12,19 @@ import com.nam.base.source.code.repositories.AccountRepo;
 import com.nam.base.source.code.services.AccountService;
 import com.nam.base.source.code.utils.ValidationUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class AccountServiceImpl implements AccountService {
+public class AccountServiceImpl implements AccountService, UserDetailsService {
     private final AccountRepo accountRepo;
     private final AccountMapper accountMapper;
 
@@ -70,11 +78,6 @@ public class AccountServiceImpl implements AccountService {
             accountIdentifier = AccountIdentifier.PHONE;
         }
 
-        if (!ValidationUtils.isNullOrEmpty(authRequest.getIdentifier())
-                && account == null) {
-            account = accountRepo.findByIdentifier(authRequest.getIdentifier());
-        }
-
         // Condition for inactive account
         if (account != null) {
             isInactiveAccount = account.getStatus().equals(AccountStatus.INACTIVE);
@@ -85,5 +88,22 @@ public class AccountServiceImpl implements AccountService {
                 .isInactive(isInactiveAccount)
                 .identity(accountIdentifier)
                 .build();
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String identifier) throws UsernameNotFoundException {
+        Account account = accountRepo.findByIdentifier(identifier);
+        if (account == null) {
+            throw new UsernameNotFoundException("Account not found with: " + identifier);
+        }
+
+        if (!account.getStatus().equals(AccountStatus.ACTIVE)) {
+            throw new AccountException("Account is: " + account.getStatus().getName());
+        }
+
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        // For multi roles
+
+        return new User(account.getId(), account.getPassword(), authorities);
     }
 }

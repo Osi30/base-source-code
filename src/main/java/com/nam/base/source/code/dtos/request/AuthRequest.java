@@ -24,7 +24,7 @@ public class AuthRequest {
     @JsonProperty("phoneNumber")
     private String phoneNumber;
 
-    @JsonProperty
+    @JsonProperty("accountRoleId")
     private String accountRoleId;
 
     @JsonProperty("identifier")

@@ -3,9 +3,11 @@ package com.nam.base.source.code.controllers;
 import com.nam.base.source.code.dtos.BaseResponse;
 import com.nam.base.source.code.dtos.request.AuthRequest;
 import com.nam.base.source.code.dtos.request.EmailRequest;
+import com.nam.base.source.code.dtos.response.TokenResponse;
 import com.nam.base.source.code.entities.Account;
 import com.nam.base.source.code.entities.VerifyToken;
 import com.nam.base.source.code.enums.EmailTemplate;
+import com.nam.base.source.code.enums.LoginType;
 import com.nam.base.source.code.services.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthController {
+    private final AuthService authService;
     private final AccountService accountService;
     private final VerifyTokenService verifyTokenService;
     private final EmailService emailService;
@@ -44,6 +47,22 @@ public class AuthController {
                 .data(null)
                 .build();
         return new ResponseEntity<>(baseResponse, HttpStatus.CREATED);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<BaseResponse> login(
+            @RequestBody AuthRequest authRequest
+    ) {
+        // Generate tokens base on login type
+        TokenResponse token = authService.login(authRequest, LoginType.PASSWORD);
+
+        BaseResponse baseResponse = BaseResponse.builder()
+                .code(HttpStatus.OK.value())
+                .message("Login account successfully!")
+                .data(token)
+                .build();
+        return new ResponseEntity<>(baseResponse, HttpStatus.OK);
+
     }
 
     @GetMapping("/verify")
