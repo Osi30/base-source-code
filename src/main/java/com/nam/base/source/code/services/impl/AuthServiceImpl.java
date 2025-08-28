@@ -3,10 +3,9 @@ package com.nam.base.source.code.services.impl;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.nam.base.source.code.dtos.request.AuthRequest;
 import com.nam.base.source.code.dtos.response.TokenResponse;
+import com.nam.base.source.code.entities.Account;
 import com.nam.base.source.code.enums.LoginType;
-import com.nam.base.source.code.services.AuthService;
-import com.nam.base.source.code.services.JwtService;
-import com.nam.base.source.code.services.RefreshTokenService;
+import com.nam.base.source.code.services.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,9 +19,27 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
     private final JwtService jwtService;
-    private final RefreshTokenService refreshTokenService;
+    private final AccountService accountService;
     private final UserDetailsService userDetailsService;
+    private final VerifyTokenService verifyTokenService;
+    private final RefreshTokenService refreshTokenService;
     private final PasswordEncoder passwordEncoder;
+
+    @Override
+    public String register(AuthRequest authRequest) {
+        // Save new account
+        Account account = accountService.createAccount(authRequest);
+
+        StringBuilder message = new StringBuilder("Create account successfully!");
+
+        if (account.getEmail() != null) {
+            // Generate and send email token for verification
+            String verifyEmailMessage = verifyTokenService.verifyEmail(account);
+            message.append(verifyEmailMessage);
+        }
+
+        return message.toString();
+    }
 
     @Override
     public TokenResponse login(AuthRequest authRequest, LoginType loginType) {

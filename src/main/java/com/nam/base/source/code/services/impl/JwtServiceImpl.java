@@ -42,8 +42,12 @@ public class JwtServiceImpl implements JwtService {
     }
 
     @Override
-    public Account getAccountFromToken(String token) {
-        return null;
+    public String getIdentifierFromToken(String token) {
+        return Jwts.parser()
+                .verifyWith(getSecretKey()).build()
+                .parseSignedClaims(token.substring(7))
+                .getPayload()
+                .get("identifier", String.class);
     }
 
     private SecretKey getSecretKey() {

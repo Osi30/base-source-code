@@ -12,7 +12,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class AccountIdentity {
-    private Account account;
+    private String identity;
     private Boolean isInactive;
-    private AccountIdentifier identity;
+    private Account processAccount;
+    private AccountIdentifier identifier;
 }

@@ -6,6 +6,7 @@ import com.nam.base.source.code.dtos.response.TokenResponse;
 import com.nam.base.source.code.enums.LoginType;
 
 public interface AuthService {
+    String register(AuthRequest authRequest);
     TokenResponse login(AuthRequest authRequest, LoginType loginType);
     String generateURL(String loginType);
     String exchangeCodeForToken(String code) throws Exception;

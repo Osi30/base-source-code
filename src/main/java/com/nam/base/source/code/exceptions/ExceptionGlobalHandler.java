@@ -7,6 +7,7 @@ import com.nam.base.source.code.exceptions.exceptions.EmailException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
@@ -46,6 +47,16 @@ public class ExceptionGlobalHandler {
 
     @ExceptionHandler(UsernameNotFoundException.class)
     public ResponseEntity<BaseResponse> handleUsernameNotFoundException(UsernameNotFoundException ex, WebRequest request) {
+        BaseResponse exceptionResponse = BaseResponse.builder()
+                .message(ex.getMessage())
+                .code(HttpStatus.BAD_REQUEST.value())
+                .data(request.getDescription(false))
+                .build();
+        return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<BaseResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex, WebRequest request) {
         BaseResponse exceptionResponse = BaseResponse.builder()
                 .message(ex.getMessage())
                 .code(HttpStatus.BAD_REQUEST.value())

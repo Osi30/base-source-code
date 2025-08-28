@@ -29,7 +29,7 @@ public class VerifyToken {
     @Column(name = "is_verified")
     private Boolean isVerified;
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "account_id", referencedColumnName = "account_id")
     private Account account;
 }

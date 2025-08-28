@@ -1,5 +1,7 @@
 package com.nam.base.source.code.controllers;
 
+import com.nam.base.source.code.entities.Account;
+import com.nam.base.source.code.services.AccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -11,12 +13,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/test")
 @RequiredArgsConstructor
 public class TestController {
-    @Value("${JWT_HEADER}")
-    private String value;
 
     @GetMapping
     public ResponseEntity<String> getVerifyToken() {
+        Account account = new Account();
+        if (account.getUsername().equals("admin")) {
+            System.out.println("Oops");
+        }
+        return ResponseEntity.ok("value");
+    }
 
-        return ResponseEntity.ok(value);
+    private Account getAccount() {
+        return null;
     }
 }

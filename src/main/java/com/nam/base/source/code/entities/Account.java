@@ -39,8 +39,7 @@ public class Account {
     @Column(name = "full_name")
     private String fullName;
 
-    @Column(name = "phone_number", length = 10, unique = true)
-    @Pattern(regexp = "(84|0[3|5|7|8|9])+(\\d{8})", message = "Invalid phone!")
+    @Column(name = "phone_number", unique = true)
     private String phoneNumber;
 
     @Column(name = "created_date")

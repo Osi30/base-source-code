@@ -1,10 +1,13 @@
 package com.nam.base.source.code.services.impl;
 
+import com.nam.base.source.code.dtos.request.EmailRequest;
 import com.nam.base.source.code.entities.Account;
 import com.nam.base.source.code.entities.VerifyToken;
 import com.nam.base.source.code.enums.AccountStatus;
+import com.nam.base.source.code.enums.EmailTemplate;
 import com.nam.base.source.code.exceptions.exceptions.AuthException;
 import com.nam.base.source.code.repositories.VerifyTokenRepo;
+import com.nam.base.source.code.services.EmailService;
 import com.nam.base.source.code.services.VerifyTokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,7 +18,24 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class VerifyTokenServiceImpl implements VerifyTokenService {
+    private final EmailService emailService;
     private final VerifyTokenRepo verifyTokenRepo;
+
+    @Override
+    public String verifyEmail(Account account) {
+        // Generate email token for verification
+        VerifyToken verifyToken = generateToken(account);
+
+        // Construct and send to account email
+        emailService.sendHtmlEmail(EmailRequest.builder()
+                .to(account.getEmail())
+                .fullName(account.getFullName())
+                .verifyToken(verifyToken.getToken())
+                .emailTemplate(EmailTemplate.VERIFY_EMAIL)
+                .build());
+
+        return "Please verify your email";
+    }
 
     @Override
     public VerifyToken generateToken(Account account) {
