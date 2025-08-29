@@ -1,8 +1,9 @@
 package com.nam.base.source.code.dtos.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.nam.base.source.code.enums.AccountStatus;
+import com.nam.base.source.code.enums.AuthType;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -34,4 +35,10 @@ public class AuthRequest {
 
     @JsonProperty("identifier")
     private String identifier;
+
+    @JsonProperty("accountStatus")
+    private AccountStatus accountStatus;
+
+    @JsonProperty("identifierType")
+    private AuthType authType;
 }

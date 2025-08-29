@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum LoginType {
+public enum AuthType {
     PASSWORD("password"),
     GOOGLE("google")
     ;

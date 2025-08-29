@@ -1,33 +1,68 @@
 package com.nam.base.source.code.services.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nam.base.source.code.dtos.request.AuthRequest;
 import com.nam.base.source.code.dtos.response.TokenResponse;
 import com.nam.base.source.code.entities.Account;
-import com.nam.base.source.code.enums.LoginType;
+import com.nam.base.source.code.enums.AccountIdentifier;
+import com.nam.base.source.code.enums.AccountStatus;
+import com.nam.base.source.code.enums.AuthType;
 import com.nam.base.source.code.services.*;
+import com.nam.base.source.code.utils.ValidationUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
+
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
+    @Value("${GOOGLE_CLIENT_ID}")
+    private String googleClientId;
+
+    @Value("${GOOGLE_REDIRECT_URI}")
+    private String googleRedirectUri;
+
+    @Value("${GOOGLE_CLIENT_SECRET}")
+    private String googleClientSecret;
+
     private final JwtService jwtService;
     private final AccountService accountService;
     private final UserDetailsService userDetailsService;
     private final VerifyTokenService verifyTokenService;
     private final RefreshTokenService refreshTokenService;
     private final PasswordEncoder passwordEncoder;
+    private final RestTemplate restTemplate;
+    private final ObjectMapper objectMapper;
 
     @Override
     public String register(AuthRequest authRequest) {
-        // Save new account
+        // Validation
+        if (ValidationUtils.isNullOrEmpty(authRequest.getUsername())
+                && ValidationUtils.isNullOrEmpty(authRequest.getEmail())
+                && ValidationUtils.isNullOrEmpty(authRequest.getPhoneNumber())) {
+            throw new BadCredentialsException("Required at least one field of username, email, phoneNumber");
+        }
+
+        // Create account
         Account account = accountService.createAccount(authRequest);
 
         StringBuilder message = new StringBuilder("Create account successfully!");
@@ -42,8 +77,8 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public TokenResponse login(AuthRequest authRequest, LoginType loginType) {
-        Authentication authentication = authenticate(authRequest, loginType);
+    public TokenResponse login(AuthRequest authRequest) {
+        Authentication authentication = authenticate(authRequest, authRequest.getAuthType());
         String accessToken = jwtService.generateToken(authentication);
         String refreshToken = refreshTokenService.generateRefreshToken(authentication);
 
@@ -53,29 +88,85 @@ public class AuthServiceImpl implements AuthService {
                 .build();
     }
 
+    /// Creates URL that redirects the user to Google's authorization server.
     @Override
-    public String generateURL(String loginType) {
-        return "";
+    public String generateOauthURL(String loginType) {
+        if (loginType.equalsIgnoreCase("google")) {
+            String state = UUID.randomUUID().toString();
+            String scope = "profile email";
+            return "https://accounts.google.com/o/oauth2/auth" +
+                    "?client_id=" + googleClientId +
+                    "&redirect_uri=" + URLEncoder.encode(googleRedirectUri
+                    , StandardCharsets.UTF_8) +
+                    "&response_type=code" +
+                    "&scope=" + URLEncoder.encode(scope, StandardCharsets.UTF_8) +
+                    "&state=" + state;
+        } else {
+            return null;
+        }
     }
 
+    /// Exchange authorization code from user for access token to user google's account
     @Override
     public String exchangeCodeForToken(String code) throws Exception {
-        return "";
+        // 1. Google's API token endpoint
+        String tokenUrl = "https://oauth2.googleapis.com/token";
+        // 2. Setup Header that the request body will be sent as URL-encoded form data.
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        // 3. Setup Request Parameters
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+        map.add("code", code);
+        map.add("client_id", googleClientId);
+        map.add("client_secret", googleClientSecret);
+        map.add("redirect_uri", googleRedirectUri);
+        map.add("grant_type", "authorization_code");
+        // 4. Create object representing HTTP request
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
+        // 5. Send POST request to token URL
+        ResponseEntity<String> response = restTemplate.postForEntity(tokenUrl, request, String.class);
+        // 6. Parse JSON response body to JsonNode object
+        JsonNode responseJson = objectMapper.readTree(response.getBody());
+        // 7. Return accessToken as a String
+        return responseJson.get("access_token").asText();
     }
 
+    /// Get user google account info by sending access token
     @Override
     public JsonNode getUserInfo(String accessToken) throws Exception {
-        return null;
+        // 1. Google's API user info endpoint
+        String userInfoUrl = "https://www.googleapis.com/oauth2/v3/userinfo";
+        // 2. Setup Request Header with Access Token
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(accessToken);
+        // 3. Create object representing HTTP request
+        HttpEntity<String> request = new HttpEntity<>(headers);
+        // 5. Send GET request to URL
+        ResponseEntity<String> response = restTemplate.exchange(userInfoUrl
+                , HttpMethod.GET, request, String.class);
+        // 6. Parse JSON response body to JsonNode object and return JSON response body
+        return objectMapper.readTree(response.getBody());
     }
 
-    private Authentication authenticate(AuthRequest authRequest, LoginType loginType) {
-        UserDetails userDetails = userDetailsService.loadUserByUsername(authRequest.getIdentifier());
+    private Authentication authenticate(AuthRequest authRequest, AuthType authType) {
+        UserDetails userDetails;
 
-        switch (loginType) {
+        switch (authType) {
             case GOOGLE:
-                // Do nothing
+                Account account = accountService.getAccountByIdentifier(authRequest.getEmail(), AccountIdentifier.EMAIL);
+
+                // Create account if not exist one
+                if (account == null) {
+                    authRequest.setAccountStatus(AccountStatus.ACTIVE);
+                    account = accountService.createAccount(authRequest);
+                }
+
+                List<GrantedAuthority> authorities = new ArrayList<>();
+
+                userDetails = new User(account.getId(), "", authorities);
                 break;
             default:
+                userDetails = userDetailsService.loadUserByUsername(authRequest.getIdentifier());
                 if (userDetails == null) {
                     throw new BadCredentialsException("Account not found with identifier: " + authRequest.getIdentifier());
                 }

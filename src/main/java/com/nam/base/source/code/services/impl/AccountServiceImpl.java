@@ -66,8 +66,13 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
     }
 
     @Override
-    public Account getAccountByIdentifier(String identifier) {
-        return accountRepo.findByIdentifier(identifier);
+    public Account getAccountByIdentifier(String identifier, AccountIdentifier identifierType) {
+        return switch (identifierType) {
+            case EMAIL -> accountRepo.findByEmail(identifier);
+            case USERNAME -> accountRepo.findByUsername(identifier);
+            case PHONE -> accountRepo.findByPhoneNumber(identifier);
+            default -> accountRepo.findByIdentifier(identifier);
+        };
     }
 
     @Override
@@ -128,7 +133,7 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String identifier) throws UsernameNotFoundException {
-        Account account = getAccountByIdentifier(identifier);
+        Account account = getAccountByIdentifier(identifier, AccountIdentifier.ALL);
         if (account == null) {
             throw new UsernameNotFoundException("Account not found with: " + identifier);
         }
@@ -157,8 +162,7 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
 
         // Email
         identity.setIdentity(authRequest.getEmail());
-        validateIdentity(identity, AccountIdentifier.EMAIL);
-
+        validateIdentity(identity, AccountIdentifier.PHONE);
 
         // Username
         identity.setIdentity(authRequest.getUsername());
@@ -166,7 +170,7 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
 
         // Phone
         identity.setIdentity(authRequest.getPhoneNumber());
-        validateIdentity(identity, AccountIdentifier.PHONE);
+        validateIdentity(identity, AccountIdentifier.EMAIL);
 
         return identity;
     }

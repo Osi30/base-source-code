@@ -43,6 +43,7 @@ dependencies {
     implementation("org.modelmapper:modelmapper:${modelMapperVersion}")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:${springDocVersion}")
     implementation("com.sun.mail:jakarta.mail:${jakartaMailVersion}")
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 
     runtimeOnly 'com.mysql:mysql-connector-j'
     runtimeOnly("io.jsonwebtoken:jjwt-impl:${jjwtVersion}")

@@ -24,11 +24,18 @@ public class AccountMapperImpl implements AccountMapper {
     public Account toAccount(AuthRequest authRequest) {
         Account account = modelMapper.map(authRequest, Account.class);
 
-        if (authRequest.getPassword() == null) {
-            throw new AuthException("Password is required");
+        switch (authRequest.getAuthType()) {
+            case GOOGLE:
+                account.setStatus(AccountStatus.ACTIVE);
+                break;
+            default:
+                if (authRequest.getPassword() == null){
+                    throw new AuthException("Password is required");
+                }
+                account.setPassword(passwordEncoder.encode(authRequest.getPassword()));
+                account.setStatus(authRequest.getEmail() == null ? AccountStatus.ACTIVE : AccountStatus.INACTIVE);
+                break;
         }
-        account.setPassword(passwordEncoder.encode(authRequest.getPassword()));
-        account.setStatus(authRequest.getEmail() == null ? AccountStatus.ACTIVE : AccountStatus.INACTIVE);
 
 //        account.setAccountRole(authRequest.getAccountRoleId() == null
 //        ? AccountRole.CUSTOMER : authRequest.getAccountRoleId());
@@ -42,6 +49,12 @@ public class AccountMapperImpl implements AccountMapper {
         Optional.ofNullable(request.getFullName()).ifPresent(existedAccount::setFullName);
         Optional.ofNullable(request.getPhoneNumber()).ifPresent(existedAccount::setPhoneNumber);
         Optional.ofNullable(request.getUsername()).ifPresent(existedAccount::setUsername);
+        Optional.ofNullable(request.getAccountStatus()).ifPresent(existedAccount::setStatus);
+
+        if (request.getPassword() != null) {
+            existedAccount.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
+
         return existedAccount;
     }
 
