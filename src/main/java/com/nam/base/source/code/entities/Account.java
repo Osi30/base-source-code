@@ -1,6 +1,7 @@
 package com.nam.base.source.code.entities;
 
 import com.nam.base.source.code.enums.AccountRole;
+import com.nam.base.source.code.enums.AccountStatus;
 import com.nam.base.source.code.utils.GenerateUtil;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -25,11 +26,11 @@ public class Account {
     @Column(name = "account_id", length = 10)
     private String id;
 
-    @Column(name = "email")
+    @Column(name = "email", unique = true)
     @Email(message = "Invalid Email!")
     private String email;
 
-    @Column(name = "username")
+    @Column(name = "username", unique = true)
     private String username;
 
     @Column(name = "password")
@@ -38,8 +39,7 @@ public class Account {
     @Column(name = "full_name")
     private String fullName;
 
-    @Column(name = "phone_number", length = 10)
-    @Pattern(regexp = "(84|0[3|5|7|8|9])+(\\d{8})", message = "Invalid phone!")
+    @Column(name = "phone_number", unique = true)
     private String phoneNumber;
 
     @Column(name = "created_date")
@@ -54,7 +54,7 @@ public class Account {
     private AccountRole accountRole;
 
     @Column(name = "status")
-    private Boolean status;
+    private AccountStatus status;
 
     @PrePersist
     public void generateId() {
