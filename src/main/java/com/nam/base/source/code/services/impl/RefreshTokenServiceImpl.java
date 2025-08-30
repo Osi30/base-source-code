@@ -1,6 +1,7 @@
 package com.nam.base.source.code.services.impl;
 
 import com.nam.base.source.code.entities.RefreshToken;
+import com.nam.base.source.code.exceptions.exceptions.AuthException;
 import com.nam.base.source.code.repositories.AccountRepo;
 import com.nam.base.source.code.repositories.RefreshTokenRepo;
 import com.nam.base.source.code.services.RefreshTokenService;
@@ -45,7 +46,11 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 
     @Override
     public RefreshToken verifyRefreshToken(String refreshToken) {
-
-        return null;
+        RefreshToken existedRefreshToken = refreshTokenRepo.findRefreshTokenByToken(refreshToken)
+                .orElseThrow(() -> new AuthException("Refresh Token Not Found!"));
+        if (existedRefreshToken.getExpiresAt().isBefore(LocalDateTime.now())) {
+            throw new AuthException("Refresh Token Expired!");
+        }
+        return existedRefreshToken;
     }
 }

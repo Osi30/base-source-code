@@ -1,22 +1,25 @@
 package com.nam.base.source.code.services.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nam.base.source.code.dtos.request.AuthRequest;
+import com.nam.base.source.code.dtos.request.RefreshTokenRequest;
 import com.nam.base.source.code.dtos.response.TokenResponse;
 import com.nam.base.source.code.entities.Account;
+import com.nam.base.source.code.entities.RefreshToken;
 import com.nam.base.source.code.enums.AccountIdentifier;
 import com.nam.base.source.code.enums.AccountStatus;
 import com.nam.base.source.code.enums.AuthType;
 import com.nam.base.source.code.services.*;
 import com.nam.base.source.code.utils.ValidationUtils;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -29,7 +32,6 @@ import org.springframework.web.client.RestTemplate;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -52,6 +54,7 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
+    private final ModelMapper modelMapper;
 
     @Override
     public String register(AuthRequest authRequest) {
@@ -88,6 +91,19 @@ public class AuthServiceImpl implements AuthService {
                 .build();
     }
 
+    @Override
+    public TokenResponse refreshToken(RefreshTokenRequest refreshTokenRequest) {
+        RefreshToken refreshToken = refreshTokenService.verifyRefreshToken(refreshTokenRequest.getRefreshToken());
+        Account account = refreshToken.getAccount();
+        AuthRequest authRequest = AuthRequest.builder()
+                .accountId(account.getId())
+                .authType(AuthType.REFRESH_TOKEN)
+                .password(account.getPassword())
+                // Missing roles
+                .build();
+        return login(authRequest);
+    }
+
     /// Creates URL that redirects the user to Google's authorization server.
     @Override
     public String generateOauthURL(String loginType) {
@@ -108,7 +124,7 @@ public class AuthServiceImpl implements AuthService {
 
     /// Exchange authorization code from user for access token to user google's account
     @Override
-    public String exchangeCodeForToken(String code) throws Exception {
+    public String exchangeCodeForToken(String code) throws JsonProcessingException {
         // 1. Google's API token endpoint
         String tokenUrl = "https://oauth2.googleapis.com/token";
         // 2. Setup Header that the request body will be sent as URL-encoded form data.
@@ -133,7 +149,7 @@ public class AuthServiceImpl implements AuthService {
 
     /// Get user google account info by sending access token
     @Override
-    public JsonNode getUserInfo(String accessToken) throws Exception {
+    public JsonNode getUserInfo(String accessToken) throws JsonProcessingException {
         // 1. Google's API user info endpoint
         String userInfoUrl = "https://www.googleapis.com/oauth2/v3/userinfo";
         // 2. Setup Request Header with Access Token
@@ -161,9 +177,13 @@ public class AuthServiceImpl implements AuthService {
                     account = accountService.createAccount(authRequest);
                 }
 
-                List<GrantedAuthority> authorities = new ArrayList<>();
-
-                userDetails = new User(account.getId(), "", authorities);
+                userDetails = new User(account.getId(), "", new ArrayList<>());
+                break;
+            case REFRESH_TOKEN:
+                if (authRequest.getPassword() == null) {
+                    authRequest.setPassword("");
+                }
+                userDetails = new User(authRequest.getAccountId(), authRequest.getPassword(), new ArrayList<>());
                 break;
             default:
                 userDetails = userDetailsService.loadUserByUsername(authRequest.getIdentifier());

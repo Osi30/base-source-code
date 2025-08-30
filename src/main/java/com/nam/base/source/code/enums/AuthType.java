@@ -7,7 +7,8 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum AuthType {
     PASSWORD("password"),
-    GOOGLE("google")
+    GOOGLE("google"),
+    REFRESH_TOKEN("refresh_token");
     ;
     private final String type;
 }

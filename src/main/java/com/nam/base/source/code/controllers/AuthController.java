@@ -3,6 +3,7 @@ package com.nam.base.source.code.controllers;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.nam.base.source.code.dtos.BaseResponse;
 import com.nam.base.source.code.dtos.request.AuthRequest;
+import com.nam.base.source.code.dtos.request.RefreshTokenRequest;
 import com.nam.base.source.code.dtos.response.TokenResponse;
 import com.nam.base.source.code.enums.AuthType;
 import com.nam.base.source.code.services.*;
@@ -60,6 +61,18 @@ public class AuthController {
                 .code(HttpStatus.OK.value())
                 .message(message)
                 .data(null)
+                .build();
+        return new ResponseEntity<>(baseResponse, HttpStatus.OK);
+    }
+
+    @PostMapping("/refreshToken")
+    public ResponseEntity<BaseResponse> reLoginByRefreshToken(@RequestBody RefreshTokenRequest tokenRequest) {
+        TokenResponse response = authService.refreshToken(tokenRequest);
+
+        BaseResponse baseResponse = BaseResponse.builder()
+                .code(HttpStatus.OK.value())
+                .message("Refresh token successfully!")
+                .data(response)
                 .build();
         return new ResponseEntity<>(baseResponse, HttpStatus.OK);
     }

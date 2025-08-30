@@ -6,13 +6,18 @@ import com.nam.base.source.code.enums.AuthType;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class AuthRequest {
+    @JsonProperty("accountId")
+    private String accountId;
+
     @JsonProperty("username")
     private String username;
 
