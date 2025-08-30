@@ -1,5 +1,6 @@
 package com.nam.base.source.code.controllers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.nam.base.source.code.dtos.BaseResponse;
 import com.nam.base.source.code.dtos.request.AuthRequest;
@@ -66,7 +67,7 @@ public class AuthController {
     }
 
     @PostMapping("/refreshToken")
-    public ResponseEntity<BaseResponse> reLoginByRefreshToken(@RequestBody RefreshTokenRequest tokenRequest) {
+    public ResponseEntity<BaseResponse> loginByRefreshToken(@RequestBody RefreshTokenRequest tokenRequest) {
         TokenResponse response = authService.refreshToken(tokenRequest);
 
         BaseResponse baseResponse = BaseResponse.builder()
@@ -93,7 +94,7 @@ public class AuthController {
     @GetMapping("/google/callback")
     public ResponseEntity<BaseResponse> callbackGoogle(
             @RequestParam("code") String code
-    ) throws Exception {
+    ) throws JsonProcessingException {
         // 1. Provide authorization code for an access token of user's account from Google's API
         String accessToken = authService.exchangeCodeForToken(code);
         // 2. Retrieve user info using access token
@@ -108,6 +109,20 @@ public class AuthController {
         request.setAuthType(AuthType.GOOGLE);
 
         TokenResponse response = authService.login(request);
+
+        BaseResponse baseResponse = BaseResponse.builder()
+                .code(HttpStatus.OK.value())
+                .message("Token Response")
+                .data(response)
+                .build();
+        return new ResponseEntity<>(baseResponse, HttpStatus.OK);
+    }
+
+    @GetMapping("/logout")
+    public ResponseEntity<BaseResponse> logout(
+            @RequestHeader("Authorization") String token
+    ){
+        String response = authService.logout(token);
 
         BaseResponse baseResponse = BaseResponse.builder()
                 .code(HttpStatus.OK.value())

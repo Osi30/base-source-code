@@ -6,4 +6,5 @@ import org.springframework.security.core.Authentication;
 public interface RefreshTokenService {
     String generateRefreshToken(Authentication authentication);
     RefreshToken verifyRefreshToken(String refreshToken);
+    String deleteRefreshToken(String accountId);
 }

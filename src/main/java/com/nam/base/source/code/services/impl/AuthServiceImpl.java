@@ -14,7 +14,6 @@ import com.nam.base.source.code.enums.AuthType;
 import com.nam.base.source.code.services.*;
 import com.nam.base.source.code.utils.ValidationUtils;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -54,7 +53,6 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
-    private final ModelMapper modelMapper;
 
     @Override
     public String register(AuthRequest authRequest) {
@@ -77,6 +75,12 @@ public class AuthServiceImpl implements AuthService {
         }
 
         return message.toString();
+    }
+
+    @Override
+    public String logout(String accessToken) {
+        String accountId = jwtService.getIdentifierFromToken(accessToken);
+        return refreshTokenService.deleteRefreshToken(accountId);
     }
 
     @Override

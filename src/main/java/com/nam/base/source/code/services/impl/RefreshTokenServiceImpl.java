@@ -53,4 +53,12 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         }
         return existedRefreshToken;
     }
+
+    @Override
+    public String deleteRefreshToken(String accountId) {
+        RefreshToken existedRefreshToken = refreshTokenRepo.findByAccount_Id(accountId);
+        existedRefreshToken.setExpiresAt(LocalDateTime.now());
+        refreshTokenRepo.save(existedRefreshToken);
+        return "Deleted Refresh Token Successfully!";
+    }
 }
