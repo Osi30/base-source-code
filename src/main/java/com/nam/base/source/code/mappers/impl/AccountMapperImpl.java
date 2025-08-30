@@ -28,6 +28,8 @@ public class AccountMapperImpl implements AccountMapper {
             case GOOGLE:
                 account.setStatus(AccountStatus.ACTIVE);
                 break;
+            case REFRESH_TOKEN:
+                throw new AuthException("Refresh token is not supported");
             default:
                 if (authRequest.getPassword() == null){
                     throw new AuthException("Password is required");
@@ -36,9 +38,6 @@ public class AccountMapperImpl implements AccountMapper {
                 account.setStatus(authRequest.getEmail() == null ? AccountStatus.ACTIVE : AccountStatus.INACTIVE);
                 break;
         }
-
-//        account.setAccountRole(authRequest.getAccountRoleId() == null
-//        ? AccountRole.CUSTOMER : authRequest.getAccountRoleId());
 
         return account;
     }
@@ -61,7 +60,6 @@ public class AccountMapperImpl implements AccountMapper {
     @Override
     public Account updateAccount(AccountRequest request, Account existedAccount) {
         Optional.ofNullable(request.getStatus()).ifPresent(existedAccount::setStatus);
-        Optional.ofNullable(request.getAccountRole()).ifPresent(existedAccount::setAccountRole);
         Optional.ofNullable(request.getFullName()).ifPresent(existedAccount::setFullName);
         Optional.ofNullable(request.getPhoneNumber()).ifPresent(existedAccount::setPhoneNumber);
         Optional.ofNullable(request.getUsername()).ifPresent(existedAccount::setUsername);

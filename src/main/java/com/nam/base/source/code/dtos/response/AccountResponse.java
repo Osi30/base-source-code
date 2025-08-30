@@ -1,6 +1,6 @@
 package com.nam.base.source.code.dtos.response;
 
-import com.nam.base.source.code.enums.AccountRole;
+import com.nam.base.source.code.entities.Role;
 import com.nam.base.source.code.enums.AccountStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,6 +21,6 @@ public class AccountResponse {
     private String phoneNumber;
     private LocalDateTime createdDate;
     private LocalDateTime updatedDate;
-    private AccountRole accountRole;
+    private Role accountRole;
     private AccountStatus status;
 }

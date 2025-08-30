@@ -103,10 +103,11 @@ public class AuthController {
         String email = userInfo.get("email").asText();
         String name = userInfo.get("name").asText();
         // 4. Create Request to get Token
-        AuthRequest request = new AuthRequest();
-        request.setEmail(email);
-        request.setFullName(name);
-        request.setAuthType(AuthType.GOOGLE);
+        AuthRequest request = AuthRequest.builder()
+                .email(email)
+                .fullName(name)
+                .authType(AuthType.GOOGLE)
+                .build();
 
         TokenResponse response = authService.login(request);
 
@@ -121,7 +122,7 @@ public class AuthController {
     @GetMapping("/logout")
     public ResponseEntity<BaseResponse> logout(
             @RequestHeader("Authorization") String token
-    ){
+    ) {
         String response = authService.logout(token);
 
         BaseResponse baseResponse = BaseResponse.builder()

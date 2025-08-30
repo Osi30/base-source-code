@@ -21,6 +21,8 @@ public interface AccountService {
 
     String deleteAccount(String accountId);
 
+    String banAccount(String accountId);
+
     List<Account> getAllAccounts();
 
     List<AccountResponse> getAllAccountResponses();

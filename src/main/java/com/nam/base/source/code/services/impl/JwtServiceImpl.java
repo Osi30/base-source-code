@@ -1,8 +1,9 @@
 package com.nam.base.source.code.services.impl;
 
-import com.nam.base.source.code.entities.Account;
 import com.nam.base.source.code.services.JwtService;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,6 +35,7 @@ public class JwtServiceImpl implements JwtService {
 
         return Jwts.builder()
                 .issuedAt(new Date())
+                .subject("Access Token")
                 .expiration(new Date(new Date().getTime() + (1000 * 60 * tokenTimeToLive)))
                 .claim("identifier", userDetails.getUsername())
                 .claim("authorities", populateAuthorities(authorities))

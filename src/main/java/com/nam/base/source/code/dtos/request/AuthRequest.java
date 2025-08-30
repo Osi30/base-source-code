@@ -15,8 +15,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class AuthRequest {
-    @JsonProperty("accountId")
-    private String accountId;
+    @JsonProperty("id")
+    private String id;
 
     @JsonProperty("username")
     private String username;
@@ -35,8 +35,8 @@ public class AuthRequest {
     @JsonProperty("phoneNumber")
     private String phoneNumber;
 
-    @JsonProperty("accountRoleId")
-    private String accountRoleId;
+    @JsonProperty("roleId")
+    private String roleId;
 
     @JsonProperty("identifier")
     private String identifier;

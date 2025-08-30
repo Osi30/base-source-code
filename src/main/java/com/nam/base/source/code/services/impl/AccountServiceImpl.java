@@ -5,25 +5,26 @@ import com.nam.base.source.code.dtos.request.AccountRequest;
 import com.nam.base.source.code.dtos.request.AuthRequest;
 import com.nam.base.source.code.dtos.response.AccountResponse;
 import com.nam.base.source.code.entities.Account;
+import com.nam.base.source.code.entities.Role;
 import com.nam.base.source.code.enums.AccountIdentifier;
 import com.nam.base.source.code.enums.AccountStatus;
+import com.nam.base.source.code.enums.DefaultRole;
 import com.nam.base.source.code.exceptions.exceptions.AccountException;
 import com.nam.base.source.code.exceptions.exceptions.AuthException;
 import com.nam.base.source.code.mappers.AccountMapper;
 import com.nam.base.source.code.repositories.AccountRepo;
 import com.nam.base.source.code.services.AccountService;
+import com.nam.base.source.code.services.RoleService;
 import com.nam.base.source.code.services.VerifyTokenService;
 import com.nam.base.source.code.utils.ValidationUtils;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -31,6 +32,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AccountServiceImpl implements AccountService, UserDetailsService {
     private final VerifyTokenService verifyTokenService;
+    private final RoleService roleService;
     private final AccountRepo accountRepo;
     private final ModelMapper modelMapper;
     private final AccountMapper accountMapper;
@@ -56,6 +58,17 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
 
         // Create new account
         Account account = accountMapper.toAccount(authRequest);
+
+        // Set role
+        Role role;
+        if (ValidationUtils.isNullOrEmpty(authRequest.getRoleId())) {
+            role = roleService.getRoleByName(DefaultRole.CUSTOMER.getDetail());
+        } else {
+            role = roleService.getRoleById(authRequest.getRoleId());
+        }
+        account.setRole(role);
+
+
         return accountRepo.save(account);
     }
 
@@ -120,6 +133,20 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
     }
 
     @Override
+    public String banAccount(String accountId) {
+        Account account = getAccountById(accountId);
+
+        if (account.getRole().getRoleName().equals(DefaultRole.ADMIN.name())) {
+            throw new AccountException("Admin account cannot be banned.");
+        }
+
+        account.setStatus(AccountStatus.BANNED);
+        accountRepo.save(account);
+
+        return "Banned Account with id: " + accountId;
+    }
+
+    @Override
     public List<Account> getAllAccounts() {
         return accountRepo.findAllByStatusIsIn(List.of(AccountStatus.ACTIVE, AccountStatus.BANNED));
     }
@@ -142,10 +169,7 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
             throw new AccountException("Account is: " + account.getStatus().getName());
         }
 
-        List<GrantedAuthority> authorities = new ArrayList<>();
-        // For multi roles
-
-        return new User(account.getId(), account.getPassword(), authorities);
+        return new User(account.getId(), account.getPassword(), account.getAuthorities());
     }
 
     /**

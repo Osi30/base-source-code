@@ -1,7 +1,6 @@
 package com.nam.base.source.code.dtos.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.nam.base.source.code.enums.AccountRole;
 import com.nam.base.source.code.enums.AccountStatus;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
@@ -30,8 +29,8 @@ public class AccountRequest {
     @JsonProperty("phoneNumber")
     private String phoneNumber;
 
-    @JsonProperty("accountRole")
-    private AccountRole accountRole;
+    @JsonProperty("role")
+    private String roleId;
 
     @JsonProperty("status")
     private AccountStatus status;

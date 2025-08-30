@@ -30,7 +30,6 @@ import org.springframework.web.client.RestTemplate;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.UUID;
 
 @Service
@@ -100,7 +99,7 @@ public class AuthServiceImpl implements AuthService {
         RefreshToken refreshToken = refreshTokenService.verifyRefreshToken(refreshTokenRequest.getRefreshToken());
         Account account = refreshToken.getAccount();
         AuthRequest authRequest = AuthRequest.builder()
-                .accountId(account.getId())
+                .id(account.getId())
                 .authType(AuthType.REFRESH_TOKEN)
                 .password(account.getPassword())
                 // Missing roles
@@ -173,21 +172,22 @@ public class AuthServiceImpl implements AuthService {
 
         switch (authType) {
             case GOOGLE:
-                Account account = accountService.getAccountByIdentifier(authRequest.getEmail(), AccountIdentifier.EMAIL);
+                Account googleAccount = accountService.getAccountByIdentifier(authRequest.getEmail(), AccountIdentifier.EMAIL);
 
                 // Create account if not exist one
-                if (account == null) {
+                if (googleAccount == null) {
                     authRequest.setAccountStatus(AccountStatus.ACTIVE);
-                    account = accountService.createAccount(authRequest);
+                    googleAccount = accountService.createAccount(authRequest);
                 }
 
-                userDetails = new User(account.getId(), "", new ArrayList<>());
+                userDetails = new User(googleAccount.getId(), "", googleAccount.getAuthorities());
                 break;
             case REFRESH_TOKEN:
+                Account account = accountService.getAccountById(authRequest.getId());
                 if (authRequest.getPassword() == null) {
                     authRequest.setPassword("");
                 }
-                userDetails = new User(authRequest.getAccountId(), authRequest.getPassword(), new ArrayList<>());
+                userDetails = new User(authRequest.getId(), authRequest.getPassword(), account.getAuthorities());
                 break;
             default:
                 userDetails = userDetailsService.loadUserByUsername(authRequest.getIdentifier());
