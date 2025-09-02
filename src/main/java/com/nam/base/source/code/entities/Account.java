@@ -16,6 +16,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -52,9 +53,12 @@ public class Account {
     @UpdateTimestamp
     private LocalDateTime updatedDate;
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id", referencedColumnName = "role_id")
     private Role role;
+
+    @OneToMany(mappedBy = "account", fetch = FetchType.EAGER)
+    private List<VerifyToken> verifyTokens;
 
     @Column(name = "status")
     private AccountStatus status;

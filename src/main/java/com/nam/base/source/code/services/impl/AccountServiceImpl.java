@@ -3,12 +3,14 @@ package com.nam.base.source.code.services.impl;
 import com.nam.base.source.code.dtos.dto.AccountIdentity;
 import com.nam.base.source.code.dtos.request.AccountRequest;
 import com.nam.base.source.code.dtos.request.AuthRequest;
+import com.nam.base.source.code.dtos.request.ResetPasswordRequest;
 import com.nam.base.source.code.dtos.response.AccountResponse;
 import com.nam.base.source.code.entities.Account;
 import com.nam.base.source.code.entities.Role;
 import com.nam.base.source.code.enums.AccountIdentifier;
 import com.nam.base.source.code.enums.AccountStatus;
 import com.nam.base.source.code.enums.DefaultRole;
+import com.nam.base.source.code.enums.TokenType;
 import com.nam.base.source.code.exceptions.exceptions.AccountException;
 import com.nam.base.source.code.exceptions.exceptions.AuthException;
 import com.nam.base.source.code.mappers.AccountMapper;
@@ -19,10 +21,12 @@ import com.nam.base.source.code.services.VerifyTokenService;
 import com.nam.base.source.code.utils.ValidationUtils;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -36,6 +40,7 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
     private final AccountRepo accountRepo;
     private final ModelMapper modelMapper;
     private final AccountMapper accountMapper;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public Account createAccount(AuthRequest authRequest) {
@@ -107,9 +112,8 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
         if (existingAccount.getEmail() != null && request.getEmail() != null
                 && !existingAccount.getEmail().equals(request.getEmail())) {
             existingAccount.setEmail(request.getEmail());
-            verifyTokenService.verifyEmail(existingAccount);
+            verifyTokenService.sendToken(existingAccount, TokenType.VERIFY_EMAIL);
         }
-
 
         return accountMapper.toAccountResponse(accountRepo.save(existingAccount));
     }
@@ -130,6 +134,29 @@ public class AccountServiceImpl implements AccountService, UserDetailsService {
         accountRepo.save(account);
 
         return "Delete Account Successfully";
+    }
+
+    @Override
+    public String resetPassword(String accountId, ResetPasswordRequest resetPasswordRequest) {
+        Account account = getAccountById(accountId);
+
+        // Validate old password
+        if (!passwordEncoder.matches(resetPasswordRequest.getOldPassword(), account.getPassword())) {
+            throw new BadCredentialsException("Invalid old password");
+        }
+
+        // Validate new password
+        String newPassword = resetPasswordRequest.getPassword();
+        String confirmPassword = resetPasswordRequest.getConfirmPassword();
+        if (!ValidationUtils.isNullOrEmpty(newPassword) && !ValidationUtils.isNullOrEmpty(confirmPassword)
+        && newPassword.equals(confirmPassword)) {
+            account.setPassword(passwordEncoder.encode(newPassword));
+            accountRepo.save(account);
+        } else {
+            throw new BadCredentialsException("Invalid new password");
+        }
+
+        return "Reset Password Successfully";
     }
 
     @Override

@@ -11,6 +11,8 @@ import com.nam.base.source.code.entities.RefreshToken;
 import com.nam.base.source.code.enums.AccountIdentifier;
 import com.nam.base.source.code.enums.AccountStatus;
 import com.nam.base.source.code.enums.AuthType;
+import com.nam.base.source.code.enums.TokenType;
+import com.nam.base.source.code.exceptions.exceptions.AuthException;
 import com.nam.base.source.code.services.*;
 import com.nam.base.source.code.utils.ValidationUtils;
 import lombok.RequiredArgsConstructor;
@@ -69,7 +71,7 @@ public class AuthServiceImpl implements AuthService {
 
         if (account.getEmail() != null) {
             // Generate and send email token for verification
-            String verifyEmailMessage = verifyTokenService.verifyEmail(account);
+            String verifyEmailMessage = verifyTokenService.sendToken(account, TokenType.VERIFY_EMAIL);
             message.append(verifyEmailMessage);
         }
 
@@ -80,6 +82,16 @@ public class AuthServiceImpl implements AuthService {
     public String logout(String accessToken) {
         String accountId = jwtService.getIdentifierFromToken(accessToken);
         return refreshTokenService.deleteRefreshToken(accountId);
+    }
+
+    @Override
+    public String requestResetPassword(String email) {
+        Account account = accountService.getAccountByIdentifier(email, AccountIdentifier.EMAIL);
+        if (account == null) {
+            throw new AuthException("Reset Password Failed");
+        }
+
+        return verifyTokenService.sendToken(account, TokenType.RESET_PASSWORD);
     }
 
     @Override
