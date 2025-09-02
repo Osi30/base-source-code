@@ -2,6 +2,7 @@ package com.nam.base.source.code.services;
 
 import com.nam.base.source.code.dtos.request.AccountRequest;
 import com.nam.base.source.code.dtos.request.AuthRequest;
+import com.nam.base.source.code.dtos.request.ResetPasswordRequest;
 import com.nam.base.source.code.dtos.response.AccountResponse;
 import com.nam.base.source.code.entities.Account;
 import com.nam.base.source.code.enums.AccountIdentifier;
@@ -20,6 +21,10 @@ public interface AccountService {
     AccountResponse updateAccount(AccountRequest account, String accountId);
 
     String deleteAccount(String accountId);
+
+    String resetPassword(String accountId, ResetPasswordRequest resetPasswordRequest);
+
+    String banAccount(String accountId);
 
     List<Account> getAllAccounts();
 

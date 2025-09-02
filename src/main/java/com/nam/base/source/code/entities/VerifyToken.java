@@ -1,5 +1,6 @@
 package com.nam.base.source.code.entities;
 
+import com.nam.base.source.code.enums.TokenType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,7 +30,10 @@ public class VerifyToken {
     @Column(name = "is_verified")
     private Boolean isVerified;
 
-    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @Column(name = "token_type")
+    private TokenType tokenType;
+
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "account_id", referencedColumnName = "account_id")
     private Account account;
 }

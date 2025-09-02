@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.nam.base.source.code.dtos.BaseResponse;
 import com.nam.base.source.code.dtos.request.AuthRequest;
 import com.nam.base.source.code.dtos.request.RefreshTokenRequest;
+import com.nam.base.source.code.dtos.request.ResetPasswordRequest;
 import com.nam.base.source.code.dtos.response.TokenResponse;
 import com.nam.base.source.code.enums.AuthType;
 import com.nam.base.source.code.services.*;
@@ -13,6 +14,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
@@ -56,7 +60,7 @@ public class AuthController {
 
     @GetMapping("/verify")
     public ResponseEntity<BaseResponse> verifyAccount(@RequestParam("token") String token) {
-        String message = verifyTokenService.verifyToken(token);
+        String message = verifyTokenService.verifyToken(token, null);
 
         BaseResponse baseResponse = BaseResponse.builder()
                 .code(HttpStatus.OK.value())
@@ -103,10 +107,11 @@ public class AuthController {
         String email = userInfo.get("email").asText();
         String name = userInfo.get("name").asText();
         // 4. Create Request to get Token
-        AuthRequest request = new AuthRequest();
-        request.setEmail(email);
-        request.setFullName(name);
-        request.setAuthType(AuthType.GOOGLE);
+        AuthRequest request = AuthRequest.builder()
+                .email(email)
+                .fullName(name)
+                .authType(AuthType.GOOGLE)
+                .build();
 
         TokenResponse response = authService.login(request);
 
@@ -121,12 +126,44 @@ public class AuthController {
     @GetMapping("/logout")
     public ResponseEntity<BaseResponse> logout(
             @RequestHeader("Authorization") String token
-    ){
+    ) {
         String response = authService.logout(token);
 
         BaseResponse baseResponse = BaseResponse.builder()
                 .code(HttpStatus.OK.value())
                 .message("Token Response")
+                .data(response)
+                .build();
+        return new ResponseEntity<>(baseResponse, HttpStatus.OK);
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<BaseResponse> forgotPassword(
+            @RequestBody AuthRequest authRequest
+    ) {
+        String response = authService.requestResetPassword(authRequest.getEmail());
+
+        BaseResponse baseResponse = BaseResponse.builder()
+                .code(HttpStatus.OK.value())
+                .message("Reset Password Response")
+                .data(response)
+                .build();
+        return new ResponseEntity<>(baseResponse, HttpStatus.OK);
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<BaseResponse> resetPassword(
+            @RequestBody ResetPasswordRequest resetPasswordRequest
+    ) {
+        Map<String, Object> attributes = new HashMap<>();
+        attributes.put("password", resetPasswordRequest.getPassword());
+        attributes.put("confirmPassword", resetPasswordRequest.getConfirmPassword());
+
+        String response = verifyTokenService.verifyToken(resetPasswordRequest.getToken(), attributes);
+
+        BaseResponse baseResponse = BaseResponse.builder()
+                .code(HttpStatus.OK.value())
+                .message("Reset Password Response")
                 .data(response)
                 .build();
         return new ResponseEntity<>(baseResponse, HttpStatus.OK);

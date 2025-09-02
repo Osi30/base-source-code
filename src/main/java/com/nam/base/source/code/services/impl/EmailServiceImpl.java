@@ -1,7 +1,6 @@
 package com.nam.base.source.code.services.impl;
 
 import com.nam.base.source.code.dtos.request.EmailRequest;
-import com.nam.base.source.code.enums.EmailTemplate;
 import com.nam.base.source.code.exceptions.exceptions.EmailException;
 import com.nam.base.source.code.services.EmailService;
 import jakarta.mail.internet.MimeMessage;
@@ -13,6 +12,8 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
+
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -41,11 +42,17 @@ public class EmailServiceImpl implements EmailService {
 
             // Act as a Map for put data to html file
             Context context = new Context();
-            context.setVariable("fullName", request.getFullName());
-            if (request.getEmailTemplate().equals(EmailTemplate.RESET_PASSWORD)) {
-                context.setVariable("resetUrl", verifyUrl);
-            } else {
-                context.setVariable("verifyUrl", verifyUrl);
+            for (Map.Entry<String, String> entry : request.getAttributes().entrySet()) {
+                context.setVariable(entry.getKey(), entry.getValue());
+            }
+
+            switch (request.getEmailTemplate()) {
+                case VERIFY_EMAIL:
+                    context.setVariable("verifyUrl", verifyUrl);
+                    break;
+                default:
+                    context.setVariable("resetUrl", verifyUrl);
+                    break;
             }
 
             // Find & generate html file and set data from context

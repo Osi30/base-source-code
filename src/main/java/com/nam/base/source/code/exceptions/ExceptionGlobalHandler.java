@@ -4,8 +4,11 @@ import com.nam.base.source.code.dtos.BaseResponse;
 import com.nam.base.source.code.exceptions.exceptions.AccountException;
 import com.nam.base.source.code.exceptions.exceptions.AuthException;
 import com.nam.base.source.code.exceptions.exceptions.EmailException;
+import com.nam.base.source.code.exceptions.exceptions.RoleException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -73,5 +76,45 @@ public class ExceptionGlobalHandler {
                 .data(request.getDescription(false))
                 .build();
         return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(RoleException.class)
+    public ResponseEntity<BaseResponse> handleRoleException(RoleException ex, WebRequest request) {
+        BaseResponse exceptionResponse = BaseResponse.builder()
+                .message(ex.getMessage())
+                .code(HttpStatus.BAD_REQUEST.value())
+                .data(request.getDescription(false))
+                .build();
+        return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<BaseResponse> handleAuthorizationDeniedException(AuthorizationDeniedException ex, WebRequest request) {
+        BaseResponse exceptionResponse = BaseResponse.builder()
+                .message(ex.getMessage())
+                .code(HttpStatus.FORBIDDEN.value())
+                .data(request.getDescription(false))
+                .build();
+        return new ResponseEntity<>(exceptionResponse, HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<BaseResponse> handleBadCredentialsException(BadCredentialsException ex, WebRequest request) {
+        BaseResponse exceptionResponse = BaseResponse.builder()
+                .message(ex.getMessage())
+                .code(HttpStatus.FORBIDDEN.value())
+                .data(request.getDescription(false))
+                .build();
+        return new ResponseEntity<>(exceptionResponse, HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(NullPointerException.class)
+    public ResponseEntity<BaseResponse> handleNullPointerException(NullPointerException ex, WebRequest request) {
+        BaseResponse exceptionResponse = BaseResponse.builder()
+                .message(ex.getMessage())
+                .code(HttpStatus.FORBIDDEN.value())
+                .data(request.getDescription(false))
+                .build();
+        return new ResponseEntity<>(exceptionResponse, HttpStatus.FORBIDDEN);
     }
 }
