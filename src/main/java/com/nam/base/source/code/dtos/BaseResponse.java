@@ -1,4 +1,4 @@
-package com.nam.base.source.code.dtos.base;
+package com.nam.base.source.code.dtos;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

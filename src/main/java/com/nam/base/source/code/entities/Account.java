@@ -1,18 +1,22 @@
 package com.nam.base.source.code.entities;
 
-import com.nam.base.source.code.enums.AccountRole;
+import com.nam.base.source.code.enums.AccountStatus;
 import com.nam.base.source.code.utils.GenerateUtil;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -25,11 +29,11 @@ public class Account {
     @Column(name = "account_id", length = 10)
     private String id;
 
-    @Column(name = "email")
+    @Column(name = "email", unique = true)
     @Email(message = "Invalid Email!")
     private String email;
 
-    @Column(name = "username")
+    @Column(name = "username", unique = true)
     private String username;
 
     @Column(name = "password")
@@ -38,8 +42,7 @@ public class Account {
     @Column(name = "full_name")
     private String fullName;
 
-    @Column(name = "phone_number", length = 10)
-    @Pattern(regexp = "(84|0[3|5|7|8|9])+(\\d{8})", message = "Invalid phone!")
+    @Column(name = "phone_number", unique = true)
     private String phoneNumber;
 
     @Column(name = "created_date")
@@ -50,14 +53,26 @@ public class Account {
     @UpdateTimestamp
     private LocalDateTime updatedDate;
 
-    @Column(name = "account_role")
-    private AccountRole accountRole;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "role_id", referencedColumnName = "role_id")
+    private Role role;
+
+    @OneToMany(mappedBy = "account", fetch = FetchType.EAGER)
+    private List<VerifyToken> verifyTokens;
 
     @Column(name = "status")
-    private Boolean status;
+    private AccountStatus status;
 
     @PrePersist
     public void generateId() {
         this.id = GenerateUtil.generateRandomWords(10);
+    }
+
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
+        for (Permission permission : role.getPermissions()) {
+            authorities.add(new SimpleGrantedAuthority(permission.getName()));
+        }
+        return authorities;
     }
 }
