@@ -14,4 +14,16 @@ public class ValidationUtils {
         }
         return !collection.isEmpty();
     }
+
+    public static boolean isValidNumber(Object value) {
+        if (isNullOrEmpty(value.toString())) {
+            return false;
+        }
+        try {
+            Double.parseDouble(value.toString());
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
 }
