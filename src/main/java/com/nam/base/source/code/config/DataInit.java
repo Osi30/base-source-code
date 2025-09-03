@@ -83,7 +83,8 @@ public class DataInit {
     private List<Permission> classifyPermission(List<Permission> permissions, DefaultRole role) {
         return switch (role) {
             case CUSTOMER -> Stream.of(
-                    DefaultPermission.MANAGE_PROFILE.name()
+                    DefaultPermission.MANAGE_PROFILE.name(),
+                    DefaultPermission.MANAGE_PRODUCT.name()
             ).map(
                     pn -> permissions.stream()
                             .filter(p -> p.getName().equals(pn))
@@ -92,7 +93,8 @@ public class DataInit {
             case EMPLOYEE -> Stream.of(
                     DefaultPermission.MANAGE_PROFILE.name(),
                     DefaultPermission.VIEW_PROFILE_LIST.name(),
-                    DefaultPermission.VIEW_ROLE_LIST.name()
+                    DefaultPermission.VIEW_ROLE_LIST.name(),
+                    DefaultPermission.BAN_PRODUCT.name()
             ).map(
                     pn -> permissions.stream()
                             .filter(p -> p.getName().equals(pn))

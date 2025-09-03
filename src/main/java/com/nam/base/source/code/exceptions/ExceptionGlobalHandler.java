@@ -1,10 +1,7 @@
 package com.nam.base.source.code.exceptions;
 
 import com.nam.base.source.code.dtos.BaseResponse;
-import com.nam.base.source.code.exceptions.exceptions.AccountException;
-import com.nam.base.source.code.exceptions.exceptions.AuthException;
-import com.nam.base.source.code.exceptions.exceptions.EmailException;
-import com.nam.base.source.code.exceptions.exceptions.RoleException;
+import com.nam.base.source.code.exceptions.exceptions.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -110,6 +107,16 @@ public class ExceptionGlobalHandler {
 
     @ExceptionHandler(NullPointerException.class)
     public ResponseEntity<BaseResponse> handleNullPointerException(NullPointerException ex, WebRequest request) {
+        BaseResponse exceptionResponse = BaseResponse.builder()
+                .message(ex.getMessage())
+                .code(HttpStatus.FORBIDDEN.value())
+                .data(request.getDescription(false))
+                .build();
+        return new ResponseEntity<>(exceptionResponse, HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(ProductException.class)
+    public ResponseEntity<BaseResponse> handleProductException(ProductException ex, WebRequest request) {
         BaseResponse exceptionResponse = BaseResponse.builder()
                 .message(ex.getMessage())
                 .code(HttpStatus.FORBIDDEN.value())
