@@ -1,6 +1,5 @@
 package com.nam.base.source.code.dtos.response;
 
-import com.nam.base.source.code.enums.ProductStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,12 +11,9 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ProductResponse {
+public class OrderDetailResponse {
     private String id;
-    private String productName;
-    private String description;
-    private ProductStatus status;
-    private int stock;
-    private BigDecimal price;
-    private String accountId;
+    private BigDecimal total;
+    private Integer quantity;
+    private ProductResponse product;
 }

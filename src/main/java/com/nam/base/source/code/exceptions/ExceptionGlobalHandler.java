@@ -124,4 +124,14 @@ public class ExceptionGlobalHandler {
                 .build();
         return new ResponseEntity<>(exceptionResponse, HttpStatus.FORBIDDEN);
     }
+
+    @ExceptionHandler(OrderException.class)
+    public ResponseEntity<BaseResponse> handleOrderException(OrderException ex, WebRequest request) {
+        BaseResponse exceptionResponse = BaseResponse.builder()
+                .message(ex.getMessage())
+                .code(HttpStatus.FORBIDDEN.value())
+                .data(request.getDescription(false))
+                .build();
+        return new ResponseEntity<>(exceptionResponse, HttpStatus.FORBIDDEN);
+    }
 }

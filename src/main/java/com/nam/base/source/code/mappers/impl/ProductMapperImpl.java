@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 @Service
@@ -30,10 +31,18 @@ public class ProductMapperImpl implements ProductMapper {
         Optional.ofNullable(productRequest.getDescription()).ifPresent(product::setDescription);
         Optional.ofNullable(productRequest.getProductName()).ifPresent(product::setProductName);
 
-        if (ValidationUtils.isValidNumber(productRequest.getStock()) && productRequest.getStock() >= 0) {
+        if (ValidationUtils.isValidNumber(productRequest.getStock())
+                && productRequest.getStock() >= 0) {
             product.setStock(productRequest.getStock());
         } else {
             product.setStock(0);
+        }
+
+        if (ValidationUtils.isValidNumber(productRequest.getPrice())
+                && productRequest.getPrice().compareTo(BigDecimal.ZERO) > 0) {
+            product.setPrice(productRequest.getPrice());
+        } else {
+            product.setPrice(BigDecimal.ZERO);
         }
 
         product.setStatus(product.getStock() == 0 ? ProductStatus.OUT_OF_STOCK : product.getStatus());
