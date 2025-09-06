@@ -14,6 +14,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.UnsupportedEncodingException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 @RestController
@@ -72,11 +74,11 @@ public class OrderController {
     public ResponseEntity<BaseResponse> createOrder(
             @RequestHeader(value = "Authorization") String token,
             @RequestBody OrderRequest orderRequest
-    ) throws UnsupportedEncodingException {
+    ) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException {
         String accountId = jwtService.getIdentifierFromToken(token);
         orderRequest.setAccount(accountService.getAccountById(accountId));
         OrderResponse orderResponse = orderService.createOrder(orderRequest);
-        String paymentURL = paymentService.createPaymentUrl(orderResponse);
+        String paymentURL = paymentService.createPayment(orderResponse);
 
         BaseResponse baseResponse = BaseResponse.builder()
                 .code(HttpStatus.CREATED.value())

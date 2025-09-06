@@ -3,8 +3,9 @@ package com.nam.base.source.code.services;
 import com.nam.base.source.code.dtos.response.OrderResponse;
 
 import java.io.UnsupportedEncodingException;
-import java.util.List;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 
 public interface PaymentService {
-    String createPaymentUrl(OrderResponse orderResponse) throws UnsupportedEncodingException;
+    String createPayment(OrderResponse response) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException;
 }

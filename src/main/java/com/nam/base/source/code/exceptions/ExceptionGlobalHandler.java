@@ -109,29 +109,39 @@ public class ExceptionGlobalHandler {
     public ResponseEntity<BaseResponse> handleNullPointerException(NullPointerException ex, WebRequest request) {
         BaseResponse exceptionResponse = BaseResponse.builder()
                 .message(ex.getMessage())
-                .code(HttpStatus.FORBIDDEN.value())
+                .code(HttpStatus.BAD_REQUEST.value())
                 .data(request.getDescription(false))
                 .build();
-        return new ResponseEntity<>(exceptionResponse, HttpStatus.FORBIDDEN);
+        return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(ProductException.class)
     public ResponseEntity<BaseResponse> handleProductException(ProductException ex, WebRequest request) {
         BaseResponse exceptionResponse = BaseResponse.builder()
                 .message(ex.getMessage())
-                .code(HttpStatus.FORBIDDEN.value())
+                .code(HttpStatus.BAD_REQUEST.value())
                 .data(request.getDescription(false))
                 .build();
-        return new ResponseEntity<>(exceptionResponse, HttpStatus.FORBIDDEN);
+        return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(OrderException.class)
     public ResponseEntity<BaseResponse> handleOrderException(OrderException ex, WebRequest request) {
         BaseResponse exceptionResponse = BaseResponse.builder()
                 .message(ex.getMessage())
-                .code(HttpStatus.FORBIDDEN.value())
+                .code(HttpStatus.BAD_REQUEST.value())
                 .data(request.getDescription(false))
                 .build();
-        return new ResponseEntity<>(exceptionResponse, HttpStatus.FORBIDDEN);
+        return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(PaymentException.class)
+    public ResponseEntity<BaseResponse> handlePaymentException(PaymentException ex, WebRequest request) {
+        BaseResponse exceptionResponse = BaseResponse.builder()
+                .message(ex.getMessage())
+                .code(HttpStatus.BAD_REQUEST.value())
+                .data(request.getDescription(false))
+                .build();
+        return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
     }
 }
