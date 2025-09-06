@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -26,6 +28,9 @@ public class ProductRequest {
 
     @JsonProperty("stock")
     private int stock;
+
+    @JsonProperty("price")
+    private BigDecimal price;
 
     @JsonProperty("accountId")
     private String accountId;
