@@ -4,8 +4,6 @@ import com.nam.base.source.code.dtos.dto.OrderDetailResult;
 import com.nam.base.source.code.dtos.request.OrderRequest;
 import com.nam.base.source.code.dtos.response.OrderResponse;
 import com.nam.base.source.code.entities.Order;
-import com.nam.base.source.code.entities.OrderDetail;
-import com.nam.base.source.code.entities.Product;
 import com.nam.base.source.code.enums.OrderStatus;
 import com.nam.base.source.code.exceptions.exceptions.OrderException;
 import com.nam.base.source.code.mappers.OrderMapper;

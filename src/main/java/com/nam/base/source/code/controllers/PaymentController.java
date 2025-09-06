@@ -49,4 +49,19 @@ public class PaymentController {
                 .build();
         return new ResponseEntity<>(baseResponse, HttpStatus.OK);
     }
+
+    @PostMapping("/cash/callback")
+    public ResponseEntity<BaseResponse> handleCashCallback(@RequestBody Map<String, String> callbackData) {
+        String orderId = callbackData.get("orderId");
+        String isSuccess = callbackData.get("isSuccess");
+
+        String response = paymentService.handlePaymentCallback("0".equals(isSuccess), orderId);
+
+        BaseResponse baseResponse = BaseResponse.builder()
+                .code(HttpStatus.OK.value())
+                .message("Cash Callback")
+                .data(response)
+                .build();
+        return new ResponseEntity<>(baseResponse, HttpStatus.OK);
+    }
 }
