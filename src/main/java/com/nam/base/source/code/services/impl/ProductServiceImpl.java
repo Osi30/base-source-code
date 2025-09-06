@@ -13,6 +13,8 @@ import com.nam.base.source.code.services.AccountService;
 import com.nam.base.source.code.services.ProductService;
 import com.nam.base.source.code.utils.ValidationUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -41,6 +43,7 @@ public class ProductServiceImpl implements ProductService {
         productRepo.saveAll(products);
     }
 
+    @CacheEvict(value = {"products"}, allEntries = true)
     @Override
     public ProductResponse createProduct(ProductRequest productRequest) {
         if (!ValidationUtils.isValidNumber(productRequest.getStock()) || productRequest.getStock() < 0) {
@@ -56,6 +59,7 @@ public class ProductServiceImpl implements ProductService {
         return productMapper.toProductResponse(productRepo.save(product));
     }
 
+    @CacheEvict(value = {"products"}, allEntries = true)
     @Override
     public ProductResponse updateProduct(ProductRequest productRequest) {
         Product product = getProductById(productRequest.getId());
@@ -63,6 +67,7 @@ public class ProductServiceImpl implements ProductService {
         return productMapper.toProductResponse(productRepo.save(product));
     }
 
+    @CacheEvict(value = {"products"}, allEntries = true)
     @Override
     public String deleteProduct(String productId) {
         Product product = getProductById(productId);
@@ -71,6 +76,7 @@ public class ProductServiceImpl implements ProductService {
         return "Deleted product successfully";
     }
 
+    @CacheEvict(value = {"products"}, allEntries = true)
     @Override
     public String banProduct(String productId) {
         Product product = getProductById(productId);
@@ -90,6 +96,7 @@ public class ProductServiceImpl implements ProductService {
         return productMapper.toProductResponse(getProductById(productId));
     }
 
+    @Cacheable(value = "products")
     @Override
     public List<ProductResponse> getProducts() {
         return productRepo.findProductsByStatusIsNot(ProductStatus.DELETED)

@@ -13,6 +13,8 @@ import com.nam.base.source.code.services.OrderService;
 import com.nam.base.source.code.services.ProductService;
 import com.nam.base.source.code.utils.ValidationUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -36,6 +38,7 @@ public class OrderServiceImpl implements OrderService {
         return orderMapper.toOrderResponse(getOrderById(orderId));
     }
 
+    @CacheEvict(value = {"orders"}, allEntries = true)
     @Override
     public OrderResponse createOrder(OrderRequest orderRequest) {
         Order order = orderMapper.toOrder(orderRequest);
@@ -47,6 +50,7 @@ public class OrderServiceImpl implements OrderService {
         return orderMapper.toOrderResponse(orderRepo.save(order));
     }
 
+    @CacheEvict(value = {"orders"}, allEntries = true)
     @Override
     public OrderResponse updateOrder(OrderRequest orderRequest) {
         Order orderToUpdate = getOrderById(orderRequest.getId());
@@ -62,6 +66,7 @@ public class OrderServiceImpl implements OrderService {
         return orderMapper.toOrderResponse(orderRepo.save(orderToUpdate));
     }
 
+    @CacheEvict(value = {"orders"}, allEntries = true)
     @Override
     public String cancelOrder(String orderId) {
         Order orderToCancel = getOrderById(orderId);
@@ -82,6 +87,7 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 
+    @CacheEvict(value = {"orders"}, allEntries = true)
     @Override
     public String completeOrder(String orderId) {
         Order orderToComplete = getOrderById(orderId);
@@ -92,6 +98,7 @@ public class OrderServiceImpl implements OrderService {
         return "Order completed successfully";
     }
 
+    @Cacheable(value = "orders")
     @Override
     public List<OrderResponse> getOrders() {
         return orderRepo.findAll()

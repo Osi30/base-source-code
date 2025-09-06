@@ -5,6 +5,8 @@ import com.nam.base.source.code.repositories.PermissionRepo;
 import com.nam.base.source.code.services.PermissionService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,16 +23,19 @@ public class PermissionServiceImpl implements PermissionService {
                 .orElseThrow(() -> new EntityNotFoundException("Permission not found"));
     }
 
+    @Cacheable(value = "permissions")
     @Override
     public List<Permission> getPermissions() {
         return permissionRepo.findAll();
     }
 
+    @CacheEvict(value = {"permissions"}, allEntries = true)
     @Override
     public Permission createPermission(Permission permission) {
         return permissionRepo.save(permission);
     }
 
+    @CacheEvict(value = {"permissions"}, allEntries = true)
     @Override
     public Permission updatePermission(Permission permission) {
         Permission oldPermission = getPermissionById(permission.getId());
@@ -42,6 +47,7 @@ public class PermissionServiceImpl implements PermissionService {
         return permissionRepo.save(oldPermission);
     }
 
+    @CacheEvict(value = {"permissions"}, allEntries = true)
     @Override
     public void deletePermission(String id) {
         permissionRepo.deleteById(id);
