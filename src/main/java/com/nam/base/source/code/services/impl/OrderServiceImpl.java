@@ -4,12 +4,15 @@ import com.nam.base.source.code.dtos.dto.OrderDetailResult;
 import com.nam.base.source.code.dtos.request.OrderRequest;
 import com.nam.base.source.code.dtos.response.OrderResponse;
 import com.nam.base.source.code.entities.Order;
+import com.nam.base.source.code.entities.OrderDetail;
+import com.nam.base.source.code.entities.Product;
 import com.nam.base.source.code.enums.OrderStatus;
 import com.nam.base.source.code.exceptions.exceptions.OrderException;
 import com.nam.base.source.code.mappers.OrderMapper;
 import com.nam.base.source.code.repositories.OrderRepo;
 import com.nam.base.source.code.services.OrderDetailService;
 import com.nam.base.source.code.services.OrderService;
+import com.nam.base.source.code.services.ProductService;
 import com.nam.base.source.code.utils.ValidationUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,6 +23,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
     private final OrderDetailService orderDetailService;
+    private final ProductService productService;
     private final OrderMapper orderMapper;
     private final OrderRepo orderRepo;
 
@@ -63,10 +67,31 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public String cancelOrder(String orderId) {
         Order orderToCancel = getOrderById(orderId);
+        validateBeforeUpdateStatus(orderToCancel);
         orderToCancel.setStatus(OrderStatus.CANCELLED);
+
+        // Add product quantity again
+        productService.returnProductQuantity(orderToCancel.getOrderDetails());
+
         orderRepo.save(orderToCancel);
 
         return "Order cancelled successfully";
+    }
+
+    private void validateBeforeUpdateStatus(Order order) {
+        if (!order.getStatus().equals(OrderStatus.AWAITING_PAYMENT)) {
+            throw new OrderException("Invalid order status");
+        }
+    }
+
+    @Override
+    public String completeOrder(String orderId) {
+        Order orderToComplete = getOrderById(orderId);
+        validateBeforeUpdateStatus(orderToComplete);
+        orderToComplete.setStatus(OrderStatus.COMPLETED);
+        orderRepo.save(orderToComplete);
+
+        return "Order completed successfully";
     }
 
     @Override

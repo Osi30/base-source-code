@@ -8,4 +8,5 @@ import java.security.NoSuchAlgorithmException;
 
 public interface PaymentService {
     String createPayment(OrderResponse response) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException;
+    String handlePaymentCallback(Boolean isSuccess, String orderId);
 }

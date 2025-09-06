@@ -31,10 +31,9 @@ public class VnPayServiceImpl implements VnPayService {
         vnp_Params.put("vnp_CurrCode", "VND");
         vnp_Params.put("vnp_Amount", totalAmount);
 
-
         vnp_Params.put("vnp_BankCode", "NCB");
         vnp_Params.put("vnp_TxnRef", vnp_TxnRef);
-        vnp_Params.put("vnp_OrderInfo", "Thanh toan don hang:" + vnp_TxnRef);
+        vnp_Params.put("vnp_OrderInfo", orderResponse.getId());
         vnp_Params.put("vnp_OrderType", VNPayConfig.orderType);
         vnp_Params.put("vnp_ReturnUrl", VNPayConfig.vnp_ReturnUrl);
 //         String returnUrl = "http://localhost:5173/loadingPage?" + orderIdListParam.substring(0, orderIdListParam.length() - 1);
