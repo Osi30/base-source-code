@@ -1,5 +1,6 @@
 package com.nam.base.source.code.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nam.base.source.code.enums.AccountStatus;
 import com.nam.base.source.code.utils.GenerateUtil;
 import jakarta.persistence.*;
@@ -57,8 +58,13 @@ public class Account {
     @JoinColumn(name = "role_id", referencedColumnName = "role_id")
     private Role role;
 
-    @OneToMany(mappedBy = "account", fetch = FetchType.EAGER)
+    @JsonIgnore
+    @OneToMany(mappedBy = "account", fetch = FetchType.LAZY)
     private List<VerifyToken> verifyTokens;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "account", fetch = FetchType.LAZY)
+    private List<Product> products;
 
     @Column(name = "status")
     private AccountStatus status;

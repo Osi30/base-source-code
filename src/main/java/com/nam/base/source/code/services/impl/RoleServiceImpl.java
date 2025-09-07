@@ -11,6 +11,8 @@ import com.nam.base.source.code.services.RoleService;
 import com.nam.base.source.code.utils.ValidationUtils;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -39,6 +41,7 @@ public class RoleServiceImpl implements RoleService {
                 .orElseThrow(() -> new EntityNotFoundException("Role not found with name " + name));
     }
 
+    @Cacheable(value = "roles")
     @Override
     public List<RoleResponse> getAllRoles() {
         return roleRepo.findAllByIsDeletedFalse().stream()
@@ -46,6 +49,7 @@ public class RoleServiceImpl implements RoleService {
                 .toList();
     }
 
+    @CacheEvict(value = {"roles"}, allEntries = true)
     @Override
     public RoleResponse createRole(RoleRequest request) {
         if (ValidationUtils.isNullOrEmpty(request.getRoleName())) {
@@ -61,6 +65,7 @@ public class RoleServiceImpl implements RoleService {
         return roleMapper.toRoleResponse(roleRepo.save(role));
     }
 
+    @CacheEvict(value = {"roles"}, allEntries = true)
     @Override
     public RoleResponse updateRole(RoleRequest role) {
         Role existingRole = getRoleById(role.getId());
@@ -76,6 +81,7 @@ public class RoleServiceImpl implements RoleService {
         return roleMapper.toRoleResponse(roleRepo.save(existingRole));
     }
 
+    @CacheEvict(value = {"roles"}, allEntries = true)
     @Override
     public String deleteRole(String id) {
         Role role = getRoleById(id);
