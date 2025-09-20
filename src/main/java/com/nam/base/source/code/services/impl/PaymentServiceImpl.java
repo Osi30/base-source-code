@@ -1,10 +1,7 @@
 package com.nam.base.source.code.services.impl;
 
 import com.nam.base.source.code.dtos.response.OrderResponse;
-import com.nam.base.source.code.services.MomoService;
-import com.nam.base.source.code.services.OrderService;
-import com.nam.base.source.code.services.PaymentService;
-import com.nam.base.source.code.services.VnPayService;
+import com.nam.base.source.code.services.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,6 +16,7 @@ import java.security.NoSuchAlgorithmException;
 public class PaymentServiceImpl implements PaymentService {
     private final VnPayService vnPayService;
     private final MomoService momoService;
+    private final StripeService stripeService;
     private final OrderService orderService;
 
     @Override
@@ -26,6 +24,7 @@ public class PaymentServiceImpl implements PaymentService {
         return switch (response.getPaymentMethod()) {
             case VNPAY -> vnPayService.createVNPayUrl(response);
             case MOMO -> momoService.createMomoUrl(response);
+            case STRIPE -> stripeService.createStripeUrl(response);
             default -> "Pay by cash successfully";
         };
     }
