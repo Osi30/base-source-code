@@ -9,6 +9,7 @@ public enum PaymentMethod {
     CASH("cash"),
     VNPAY("vnpay"),
     MOMO("momo"),
+    STRIPE("stripe")
     ;
 
     private final String code;

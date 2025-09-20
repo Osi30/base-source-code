@@ -26,6 +26,7 @@ ext {
     springDocVersion = '2.8.9'
     jakartaMailVersion = '2.0.2'
     jedisVersion = '6.2.0'
+    stripeVersion = '29.6.0-beta.1'
 }
 
 dependencies {
@@ -47,6 +48,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation("redis.clients:jedis:${jedisVersion}")
+    implementation("com.stripe:stripe-java:${stripeVersion}")
 
     runtimeOnly 'com.mysql:mysql-connector-j'
     runtimeOnly("io.jsonwebtoken:jjwt-impl:${jjwtVersion}")
